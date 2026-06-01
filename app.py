@@ -951,74 +951,54 @@ elif st.session_state.view == "details":
                     handle_error(err3)
 
 
-# ═════════════════════════════════════════════
-# ABOUT SECTION (shown on all pages at bottom)
-# ═════════════════════════════════════════════
-st.markdown("""
-<div style='margin-top:4rem;padding:3rem 4%;
-background:linear-gradient(135deg,#1a1a1a,#111);
-border-top:1px solid #222;'>
 
-    <div style='max-width:700px;margin:0 auto;text-align:center'>
-
-        <!-- Film reel icon -->
-        <div style='font-size:2.5rem;margin-bottom:1rem'>🎬</div>
-
-        <!-- Title -->
-        <div style='font-size:1.4rem;font-weight:700;color:#fff;
-        letter-spacing:-.01em;margin-bottom:.4rem;font-family:Inter,sans-serif'>
-            About This Project
-        </div>
-
-        <div style='width:40px;height:2px;background:#e50914;
-        margin:0 auto 1.5rem;border-radius:2px'></div>
-
-        <!-- Description -->
-        <div style='font-size:.92rem;line-height:1.8;color:#aaa;
-        margin-bottom:1.8rem;font-family:Inter,sans-serif'>
-            This movie recommendation system was entirely built by me — from the
-            backend API to this frontend UI. It uses
-            <span style='color:#e5e5e5;font-weight:500'>Cosine Similarity</span>
-            on TF-IDF vectors to find films with similar content, combined with
-            <span style='color:#e5e5e5;font-weight:500'>genre-based discovery</span>
-            via the TMDB API. The backend runs on FastAPI deployed on Render,
-            and the frontend is built with Streamlit.
-        </div>
-
-        <!-- Student badge -->
-        <div style='display:inline-flex;align-items:center;gap:.6rem;
-        background:rgba(229,9,20,.08);border:1px solid rgba(229,9,20,.2);
-        border-radius:6px;padding:.6rem 1.2rem;margin-bottom:1.8rem'>
-            <span style='font-size:1rem'>🎓</span>
-            <span style='font-size:.82rem;color:#ccc;font-family:Inter,sans-serif'>
-                Final Year B.Tech Student
-            </span>
-        </div>
-
-        <br>
-
-        <!-- Name -->
-        <div style='font-size:1.1rem;font-weight:700;color:#fff;
-        margin-bottom:.3rem;font-family:Inter,sans-serif'>
-            Aditya Halder
-        </div>
-
-        <!-- Email -->
-        <div style='margin-bottom:1.5rem'>
-            <a href='mailto:halderaditya519@gmail.com'
-            style='font-size:.85rem;color:#e50914;text-decoration:none;
-            font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:.4rem'>
-                ✉ halderaditya519@gmail.com
-            </a>
-        </div>
-
-        <!-- Divider -->
-        <div style='border-top:1px solid #222;padding-top:1.2rem;
-        font-size:.72rem;color:#444;font-family:Inter,sans-serif;
-        letter-spacing:.04em'>
-            Have a question or feedback? Feel free to reach out via email.
-        </div>
-
-    </div>
-</div>
-""", unsafe_allow_html=True)
+# ═══════════════════════════════════════
+# ABOUT SECTION
+# ═══════════════════════════════════════
+st.markdown("---")
+st.markdown(
+    "<div style='text-align:center;padding:2rem 0 .5rem;font-size:2rem'>🎬</div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;font-size:1.3rem;font-weight:700;color:#fff;font-family:Inter,sans-serif'>About This Project</div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;margin:.5rem auto 1.2rem;width:40px;height:2px;background:#e50914;border-radius:2px'></div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;max-width:650px;margin:0 auto 1.5rem;font-size:.9rem;line-height:1.8;color:#aaa;font-family:Inter,sans-serif'>"
+    "This movie recommendation system was entirely built by me — from the backend API to this frontend UI. "
+    "It uses <b style='color:#e5e5e5'>Cosine Similarity</b> on TF-IDF vectors to find films with similar content, "
+    "combined with <b style='color:#e5e5e5'>genre-based discovery</b> via the TMDB API. "
+    "The backend runs on FastAPI deployed on Render, and the frontend is built with Streamlit."
+    "</div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;margin-bottom:1rem'>"
+    "<span style='background:rgba(229,9,20,.1);border:1px solid rgba(229,9,20,.25);"
+    "border-radius:6px;padding:.45rem 1rem;font-size:.8rem;color:#ccc;font-family:Inter,sans-serif'>"
+    "🎓 Final Year B.Tech Student"
+    "</span></div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;font-size:1rem;font-weight:700;color:#fff;font-family:Inter,sans-serif;margin-bottom:.3rem'>Aditya Halder</div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;margin-bottom:.6rem'>"
+    "<a href='mailto:halderaditya519@gmail.com' "
+    "style='color:#e50914;font-size:.85rem;font-family:Inter,sans-serif;text-decoration:none'>"
+    "✉ halderaditya519@gmail.com</a></div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<div style='text-align:center;font-size:.72rem;color:#444;font-family:Inter,sans-serif;padding-bottom:2rem'>"
+    "Have a question or feedback? Feel free to reach out via email."
+    "</div>",
+    unsafe_allow_html=True,
+)
