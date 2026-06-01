@@ -346,11 +346,12 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
                     and len(_poster) > 10
                 )
                 if _valid:
-                    try:
-                        st.image(_poster, use_container_width=True)
-                    except Exception:
-                        _valid = False
-                if not _valid:
+                    st.markdown(
+                        f"<img src='{_poster}' style='width:100%;border-radius:3px;"
+                        f"display:block;aspect-ratio:2/3;object-fit:cover'>",
+                        unsafe_allow_html=True,
+                    )
+                else:
                     st.markdown(
                         "<div style='aspect-ratio:2/3;background:#1a1714;"
                         "border-radius:3px;display:flex;align-items:center;"
@@ -512,11 +513,12 @@ elif st.session_state.view == "details":
             and len(_detail_poster) > 10
         )
         if _detail_valid:
-            try:
-                st.image(_detail_poster, use_container_width=True)
-            except Exception:
-                _detail_valid = False
-        if not _detail_valid:
+            st.markdown(
+                f"<img src='{_detail_poster}' style='width:100%;border-radius:4px;"
+                f"display:block;aspect-ratio:2/3;object-fit:cover'>",
+                unsafe_allow_html=True,
+            )
+        else:
             st.markdown(
                 "<div style='aspect-ratio:2/3;background:#1a1714;border-radius:4px;"
                 "display:flex;align-items:center;justify-content:center;"
