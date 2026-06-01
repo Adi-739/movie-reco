@@ -17,11 +17,21 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────
+# CATEGORIES
+# ─────────────────────────────────────────────
+CATEGORIES = {
+    "trending":    "Trending Now",
+    "popular":     "Popular",
+    "top_rated":   "Top Rated",
+    "now_playing": "Now Playing",
+    "upcoming":    "Coming Soon",
+}
+
+# ─────────────────────────────────────────────
 # NETFLIX-STYLE CSS
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +51,6 @@ footer,
 [data-testid="stDecoration"],
 #MainMenu { display: none !important; }
 
-/* Remove default padding */
 .block-container {
     padding: 0 !important;
     max-width: 100% !important;
@@ -184,32 +193,54 @@ section[data-testid="stSidebar"] { display: none !important; }
 }
 .nf-btn-info:hover { background: rgba(109,109,110,.5); }
 
-/* ── CATEGORY ROW TABS ── */
-.nf-tabs {
-    display: flex; gap: 0;
-    padding: .5rem 4%;
-    background: #141414;
-    border-bottom: 1px solid #222;
-    position: sticky; top: 68px;
-    z-index: 100;
-    overflow-x: auto;
-    scrollbar-width: none;
+/* ═══════════════════════════════════════
+   TAB BAR — single unified implementation
+   Functional st.buttons styled as tabs.
+   The HTML .nf-tabs div is removed entirely.
+═══════════════════════════════════════ */
+
+/* Wrapper: make the st.columns row look like a sticky tab bar */
+div[data-testid="stHorizontalBlock"].tab-row {
+    background: #141414 !important;
+    border-bottom: 1px solid #222 !important;
+    padding: 0 4% !important;
+    position: sticky !important;
+    top: 68px !important;
+    z-index: 100 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
 }
-.nf-tabs::-webkit-scrollbar { display: none; }
-.nf-tab {
-    padding: .65rem 1.2rem;
-    font-size: .82rem; font-weight: 500;
-    color: #aaa; cursor: pointer;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    transition: all .2s;
-    letter-spacing: .01em;
+div[data-testid="stHorizontalBlock"].tab-row::-webkit-scrollbar { display: none !important; }
+
+/* Individual tab buttons */
+div[data-testid="stHorizontalBlock"].tab-row .stButton > button {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2.5px solid transparent !important;
+    border-radius: 0 !important;
+    color: #aaa !important;
+    font-size: .82rem !important;
+    font-weight: 500 !important;
+    padding: .7rem .6rem !important;
+    line-height: 1 !important;
+    transition: color .2s, border-color .2s !important;
+    font-family: 'Inter', sans-serif !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    letter-spacing: .01em !important;
 }
-.nf-tab:hover { color: #fff; }
-.nf-tab.active {
-    color: #fff;
-    border-bottom-color: #e50914;
-    font-weight: 600;
+div[data-testid="stHorizontalBlock"].tab-row .stButton > button:hover {
+    color: #fff !important;
+    background: transparent !important;
+    border-bottom-color: #666 !important;
+    box-shadow: none !important;
+}
+div[data-testid="stHorizontalBlock"].tab-row .stButton > button:focus {
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* ── SEARCH BAR ── */
@@ -262,75 +293,24 @@ section[data-testid="stSidebar"] { display: none !important; }
 }
 .nf-section-header:hover .nf-section-explore { opacity: 1; }
 
-/* ── MOVIE CARD GRID ── */
-.nf-grid {
-    display: grid;
-    grid-template-columns: repeat(var(--cols, 6), 1fr);
-    gap: 4px;
-    padding: 0 4% 2rem;
-}
-
+/* ── MOVIE CARD ── */
 .nf-card {
     position: relative;
     border-radius: 4px;
     overflow: hidden;
     cursor: pointer;
     background: #1a1a1a;
-    transition: transform .3s cubic-bezier(.25,.46,.45,.94),
-                z-index 0s .15s;
+    transition: transform .3s cubic-bezier(.25,.46,.45,.94);
     aspect-ratio: 2/3;
 }
 .nf-card:hover {
     transform: scale(1.08);
     z-index: 10;
-    transition: transform .3s cubic-bezier(.25,.46,.45,.94),
-                z-index 0s 0s;
     box-shadow: 0 14px 50px rgba(0,0,0,.8);
 }
 .nf-card img {
     width: 100%; height: 100%;
     object-fit: cover; display: block;
-}
-.nf-card-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(
-        to top,
-        rgba(0,0,0,.95) 0%,
-        rgba(0,0,0,.4) 40%,
-        rgba(0,0,0,0) 70%
-    );
-    opacity: 0;
-    transition: opacity .25s;
-    display: flex; flex-direction: column;
-    justify-content: flex-end;
-    padding: .7rem .6rem .55rem;
-}
-.nf-card:hover .nf-card-overlay { opacity: 1; }
-.nf-card-play {
-    width: 32px; height: 32px;
-    background: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: .4rem;
-    flex-shrink: 0;
-}
-.nf-card-play svg { margin-left: 2px; }
-.nf-card-title {
-    font-size: .72rem; font-weight: 600;
-    color: #fff; line-height: 1.2;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.nf-card-meta {
-    font-size: .63rem; color: #aaa;
-    margin-top: .15rem;
-    display: flex; gap: .4rem; align-items: center;
-}
-.nf-card-rating { color: #46d369; font-weight: 600; }
-.nf-card-placeholder {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: #333; font-size: 2.5rem; gap: .5rem;
-    background: linear-gradient(135deg, #1a1a1a, #222);
 }
 
 /* ── DETAIL PAGE ── */
@@ -356,26 +336,6 @@ section[data-testid="stSidebar"] { display: none !important; }
         rgba(20,20,20,.1) 100%
     );
 }
-.nf-detail-back {
-    position: absolute; top: 80px; left: 4%;
-    display: flex; align-items: center; gap: .5rem;
-    color: #fff; cursor: pointer; font-size: .85rem;
-    font-weight: 500; z-index: 10;
-    background: rgba(0,0,0,.4);
-    padding: .4rem .9rem; border-radius: 4px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,.1);
-    transition: background .2s;
-}
-.nf-detail-back:hover { background: rgba(0,0,0,.7); }
-
-.nf-detail-info {
-    padding: 2rem 4% 0;
-    display: flex; gap: 2.5rem;
-    align-items: flex-start;
-    margin-top: -120px;
-    position: relative; z-index: 5;
-}
 .nf-detail-poster {
     flex-shrink: 0;
     width: 220px;
@@ -385,7 +345,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     border: 1px solid rgba(255,255,255,.08);
 }
 .nf-detail-poster img { width: 100%; display: block; }
-.nf-detail-meta { flex: 1; padding-top: .5rem; }
 .nf-detail-title {
     font-size: clamp(1.8rem, 3vw, 2.8rem);
     font-weight: 700; color: #fff;
@@ -419,21 +378,8 @@ section[data-testid="stSidebar"] { display: none !important; }
     color: #ccc; max-width: 600px;
     margin-bottom: 1.5rem;
 }
-.nf-detail-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 
-/* ── ROW SECTION ── */
-.nf-row-section { margin-bottom: 1rem; }
-
-/* ── SELECTBOX ── */
-.stSelectbox > div > div {
-    background: #2a2a2a !important;
-    border: 1px solid #333 !important;
-    border-radius: 4px !important;
-    color: #fff !important;
-}
-.stSelectbox > label { display: none !important; }
-
-/* ── BUTTONS ── */
+/* ── GENERAL BUTTONS (non-tab) ── */
 .stButton > button {
     background: rgba(109,109,110,.5) !important;
     border: none !important;
@@ -449,14 +395,21 @@ section[data-testid="stSidebar"] { display: none !important; }
     background: rgba(109,109,110,.8) !important;
 }
 
-/* ── DIVIDER ── */
+/* ── SELECTBOX ── */
+.stSelectbox > div > div {
+    background: #2a2a2a !important;
+    border: 1px solid #333 !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+}
+.stSelectbox > label { display: none !important; }
+
+/* ── MISC ── */
 hr {
     border: none !important;
     border-top: 1px solid #222 !important;
     margin: 1rem 0 !important;
 }
-
-/* ── WAKE-UP BANNER ── */
 .nf-wakeup {
     margin: 1rem 4%;
     background: linear-gradient(135deg, #1a0a0a, #2a1010);
@@ -467,12 +420,8 @@ hr {
 }
 .nf-wakeup-text { color: #ff6b6b; font-size: .88rem; font-weight: 500; }
 .nf-wakeup-sub  { color: #666; font-size: .75rem; margin-top: .2rem; }
-
-/* ── SCROLL FIX ── */
 .main .block-container { overflow-x: hidden; }
 section.main > div { padding-top: 68px; }
-
-/* ── RESULTS LABEL ── */
 .nf-results-label {
     padding: .5rem 4% 0;
     font-size: .78rem; color: #666;
@@ -480,95 +429,55 @@ section.main > div { padding-top: 68px; }
 }
 
 /* ══════════════════════════════════════
-   RESPONSIVE — MOBILE & TABLET
+   RESPONSIVE
 ══════════════════════════════════════ */
-
-/* Tablet (≤900px) → 3 columns */
 @media (max-width: 900px) {
     .block-container { padding: 0 !important; }
-
     .nf-nav { padding: 0 3%; height: 56px; }
     .nf-nav-links { display: none; }
     .nf-logo { font-size: 1.4rem; }
-
     .nf-hero { height: 55vh; min-height: 320px; }
     .nf-hero-content { bottom: 12%; max-width: 90%; }
     .nf-hero-title { font-size: 1.6rem; }
     .nf-hero-desc { display: none; }
-
-    .nf-tabs { padding: .3rem 3%; top: 56px; }
-    .nf-tab { padding: .5rem .8rem; font-size: .75rem; }
-
+    div[data-testid="stHorizontalBlock"].tab-row { top: 56px !important; padding: 0 3% !important; }
     .nf-section-header { padding: 1.5rem 3% .6rem; }
     .nf-section-title { font-size: .95rem; }
-
-    /* 3-col grid on tablet */
-    [data-testid="column"] { min-width: 0 !important; }
     section.main > div { padding-top: 56px; }
-
-    .nf-detail-info { flex-direction: column; gap: 1.2rem; margin-top: -60px; padding: 1rem 3% 0; }
     .nf-detail-poster { width: 140px; }
     .nf-detail-title { font-size: 1.5rem; }
     .nf-detail-hero { height: 45vh; }
-
     .nf-search-container { padding: 1rem 3% .5rem; }
 }
 
-/* Mobile (≤600px) → 2 columns, larger touch targets */
 @media (max-width: 600px) {
     .nf-nav { padding: 0 4%; height: 52px; }
     .nf-logo { font-size: 1.25rem; }
-
     .nf-hero { height: 50vh; min-height: 280px; }
     .nf-hero-content { bottom: 10%; left: 4%; max-width: 95%; }
     .nf-hero-title { font-size: 1.3rem; }
     .nf-hero-badge { font-size: .65rem; }
     .nf-hero-btns { gap: .5rem; }
     .nf-btn-play, .nf-btn-info { padding: .45rem 1rem; font-size: .82rem; }
-
-    .nf-tabs { gap: 0; top: 52px; }
-    .nf-tab { padding: .45rem .6rem; font-size: .7rem; }
-
-    .nf-section-header { padding: 1.2rem 4% .5rem; }
-    .nf-section-title { font-size: .88rem; }
-
-    /* Force 2-col on mobile using st.columns gap override */
-    [data-testid="stHorizontalBlock"] > div {
-        min-width: 0 !important;
-        flex: 1 1 0 !important;
+    div[data-testid="stHorizontalBlock"].tab-row { top: 52px !important; }
+    div[data-testid="stHorizontalBlock"].tab-row .stButton > button {
+        font-size: .7rem !important;
+        padding: .6rem .3rem !important;
     }
-
     section.main > div { padding-top: 52px; }
-
     .nf-detail-hero { height: 38vh; min-height: 220px; }
-    .nf-detail-info { margin-top: -40px; padding: 1rem 4% 0; gap: 1rem; }
     .nf-detail-poster { width: 110px; }
     .nf-detail-title { font-size: 1.2rem; }
     .nf-detail-overview { font-size: .82rem; }
-    .nf-detail-stats { gap: .6rem; }
-
-    /* Bigger tap targets for buttons */
     .stButton > button {
         padding: .6rem .8rem !important;
         font-size: .75rem !important;
         min-height: 40px !important;
     }
-
-    /* Card title always visible on mobile (no hover) */
-    .nf-card-overlay { opacity: 1 !important; }
-    .nf-card:hover { transform: none !important; }
-
     .nf-search-container { padding: .8rem 4% .4rem; }
     .stTextInput > div > div > input { font-size: .9rem !important; }
-
-    /* Tab buttons smaller */
-    div[data-testid="stHorizontalBlock"] .stButton > button {
-        font-size: .65rem !important;
-        padding: .4rem .3rem !important;
-    }
 }
 
-/* Very small screens (≤380px) */
 @media (max-width: 380px) {
     .nf-hero-title { font-size: 1.1rem; }
     .nf-logo { font-size: 1.1rem; }
@@ -723,20 +632,7 @@ def tfidf_to_cards(items):
 # ─────────────────────────────────────────────
 # NAVBAR
 # ─────────────────────────────────────────────
-CATEGORIES = {
-    "trending":    "Trending Now",
-    "popular":     "Popular",
-    "top_rated":   "Top Rated",
-    "now_playing": "Now Playing",
-    "upcoming":    "Coming Soon",
-}
-
-nav_tabs_html = ""
-for key, label in CATEGORIES.items():
-    active = "active" if st.session_state.category == key else ""
-    nav_tabs_html += f"<div class='nf-tab {active}'>{label}</div>"
-
-st.markdown(f"""
+st.markdown("""
 <div class='nf-nav' id='nf-nav'>
     <div style='display:flex;align-items:center;gap:2.5rem'>
         <div class='nf-logo'>FLICKR</div>
@@ -752,16 +648,16 @@ st.markdown(f"""
     </div>
 </div>
 <script>
-window.addEventListener('scroll', function() {{
+window.addEventListener('scroll', function() {
     var nav = document.getElementById('nf-nav');
     if (nav) nav.className = window.scrollY > 50 ? 'nf-nav scrolled' : 'nf-nav';
-}});
+});
 </script>
 """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────
-# POSTER CARD GRID (Netflix style — per-column rendering)
+# POSTER CARD GRID
 # ─────────────────────────────────────────────
 def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
     if not cards:
@@ -775,23 +671,6 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
             f"</div>",
             unsafe_allow_html=True,
         )
-
-    # Inject JS to detect screen width and set col count via CSS
-    st.markdown("""
-    <style>
-    @media(max-width:600px){
-        /* 2 cols: hide every 3rd+ column item visually via opacity trick not possible,
-           so we rely on st.columns with cols=2 override via JS detection */
-    }
-    </style>
-    <script>
-    (function(){
-        var w = window.innerWidth;
-        var cols = w <= 600 ? 2 : w <= 900 ? 3 : 6;
-        document.documentElement.style.setProperty('--mobile-cols', cols);
-    })();
-    </script>
-    """, unsafe_allow_html=True)
 
     rows = (len(cards) + cols - 1) // cols
     idx  = 0
@@ -808,7 +687,6 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
             _rating = m.get("vote_average")
 
             with colset[c]:
-                # ── Poster image ──
                 if valid_url(_poster):
                     st.markdown(
                         f"<div class='nf-card'>"
@@ -825,7 +703,6 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
                         unsafe_allow_html=True,
                     )
 
-                # ── Title + meta ──
                 rating_str = f"★{_rating:.1f}  " if _rating else ""
                 st.markdown(
                     f"<div style='font-size:.72rem;font-weight:600;color:#e5e5e5;"
@@ -836,7 +713,6 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
                     unsafe_allow_html=True,
                 )
 
-                # ── Open button ──
                 if _id:
                     if st.button("▶ Open", key=f"{key_prefix}_{r}_{c}_{idx}",
                                   use_container_width=True):
@@ -849,15 +725,12 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
 def render_hero(cards):
     if not cards:
         return
-    # Pick top card with a backdrop
-    hero = cards[min(st.session_state.hero_idx, len(cards)-1)]
+    hero    = cards[min(st.session_state.hero_idx, len(cards)-1)]
     title   = hero.get("title", "")
     poster  = hero.get("poster_url", "")
     year    = (hero.get("release_date") or "")[:4]
     rating  = hero.get("vote_average")
     tmdb_id = hero.get("tmdb_id")
-
-    # Use poster as hero bg (widescreen backdrop not available at this stage)
     bg_url  = poster if valid_url(poster) else ""
 
     rating_html = f'<span class="nf-hero-rating">● {rating:.0f}% Match</span>' if rating else ""
@@ -882,7 +755,6 @@ def render_hero(cards):
     </div>
     """, unsafe_allow_html=True)
 
-    # Actual clickable button (hidden under More Info visually)
     if tmdb_id:
         col1, col2, *_ = st.columns([1, 1, 8])
         with col2:
@@ -891,24 +763,65 @@ def render_hero(cards):
 
 
 # ═════════════════════════════════════════════
+# RENDER ACTIVE TAB HIGHLIGHT
+# Injects a small <style> block that colours
+# whichever button matches the active category.
+# ═════════════════════════════════════════════
+def render_tab_active_style():
+    cat_keys = list(CATEGORIES.keys())
+    active   = st.session_state.category
+    try:
+        # nth-of-type is 1-indexed; buttons inside .tab-row columns
+        idx = cat_keys.index(active) + 1
+    except ValueError:
+        idx = 1
+    st.markdown(f"""
+    <style>
+    div[data-testid="stHorizontalBlock"].tab-row
+        > div:nth-child({idx})
+        .stButton > button {{
+        color: #fff !important;
+        border-bottom-color: #e50914 !important;
+        font-weight: 600 !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+
+# ═════════════════════════════════════════════
 # VIEW: HOME
 # ═════════════════════════════════════════════
 if st.session_state.view == "home":
 
-    # ── Category Tabs (rendered as HTML, buttons below) ──
-    tab_cols = st.columns(len(CATEGORIES) + 2)
-    cat_keys = list(CATEGORIES.keys())
+    # ── Inject wrapper class onto the next st.columns block ──
+    # Streamlit doesn't let us add classes to stHorizontalBlock directly,
+    # so we use a JS snippet that runs immediately and tags the NEXT sibling.
+    st.markdown("""
+    <script>
+    (function() {
+        function tagTabRow() {
+            var blocks = document.querySelectorAll('[data-testid="stHorizontalBlock"]');
+            blocks.forEach(function(b) {
+                var btns = b.querySelectorAll('button');
+                if (btns.length === 5) {
+                    b.classList.add('tab-row');
+                }
+            });
+        }
+        tagTabRow();
+        setTimeout(tagTabRow, 300);
+        setTimeout(tagTabRow, 800);
+    })();
+    </script>
+    """, unsafe_allow_html=True)
 
-    st.markdown("<div class='nf-tabs'>", unsafe_allow_html=True)
-    for i, (key, label) in enumerate(CATEGORIES.items()):
-        active_style = "color:#fff;border-bottom:2px solid #e50914;font-weight:600" if st.session_state.category == key else ""
-        st.markdown(f"<div class='nf-tab' style='{active_style}'>{label}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    # ── Active tab highlight ──
+    render_tab_active_style()
 
-    # Real tab buttons (compact row)
-    tab_btn_cols = st.columns(len(CATEGORIES))
+    # ── Tab buttons (single source of truth) ──
+    tab_cols = st.columns(len(CATEGORIES))
     for i, (key, label) in enumerate(CATEGORIES.items()):
-        with tab_btn_cols[i]:
+        with tab_cols[i]:
             if st.button(label, key=f"tab_{key}", use_container_width=True):
                 st.session_state.category = key
                 st.rerun()
@@ -982,7 +895,6 @@ elif st.session_state.view == "details":
     backdrop = data.get("backdrop_url")
     poster   = data.get("poster_url")
 
-    # ── Hero backdrop ──
     bg_url = backdrop if valid_url(backdrop) else (poster if valid_url(poster) else "")
 
     st.markdown(f"""
@@ -992,11 +904,9 @@ elif st.session_state.view == "details":
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Back button ──
     if st.button("← Back to Home", key="back_btn"):
         goto_home()
 
-    # ── Info row ──
     left, right = st.columns([1, 3], gap="large")
 
     with left:
@@ -1063,7 +973,6 @@ elif st.session_state.view == "details":
                                 section_title="More Like This")
                 else:
                     handle_error(err3)
-
 
 
 # ═══════════════════════════════════════
