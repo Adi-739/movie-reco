@@ -1,3 +1,8 @@
 .env
 .venv
 __pycache__
+app_old.py
+app_old_1.py
+app_old_2.py
+app_old_3.py
+app_old_4.py
