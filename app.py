@@ -505,9 +505,18 @@ elif st.session_state.view == "details":
     left, right = st.columns([1, 2.8], gap="large")
 
     with left:
-        if data.get("poster_url"):
-            st.image(data["poster_url"], use_container_width=True)
-        else:
+        _detail_poster = data.get("poster_url")
+        _detail_valid = (
+            isinstance(_detail_poster, str)
+            and _detail_poster.startswith("http")
+            and len(_detail_poster) > 10
+        )
+        if _detail_valid:
+            try:
+                st.image(_detail_poster, use_container_width=True)
+            except Exception:
+                _detail_valid = False
+        if not _detail_valid:
             st.markdown(
                 "<div style='aspect-ratio:2/3;background:#1a1714;border-radius:4px;"
                 "display:flex;align-items:center;justify-content:center;"
