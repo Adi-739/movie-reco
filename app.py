@@ -664,101 +664,69 @@ window.addEventListener('scroll', function() {{
 
 
 # ─────────────────────────────────────────────
-# POSTER CARD GRID (Netflix style)
+# POSTER CARD GRID (Netflix style — per-column rendering)
 # ─────────────────────────────────────────────
-def render_card(m, key):
-    _id     = m.get("tmdb_id")
-    _title  = m.get("title", "Unknown")
-    _poster = m.get("poster_url")
-    _year   = (m.get("release_date") or "")[:4]
-    _rating = m.get("vote_average")
-
-    rating_html = f'<span class="nf-card-rating">▶ {_rating:.1f}</span>' if _rating else ""
-    year_html   = f'<span>{_year}</span>' if _year else ""
-
-    if valid_url(_poster):
-        img_html = f"<img src='{_poster}' alt='{_title}' loading='lazy'>"
-    else:
-        img_html = "<div class='nf-card-placeholder'>🎬<span style='font-size:.7rem;color:#444'>No Image</span></div>"
-
-    st.markdown(f"""
-    <div class='nf-card'>
-        {img_html}
-        <div class='nf-card-overlay'>
-            <div class='nf-card-play'>
-                <svg width='12' height='14' viewBox='0 0 12 14' fill='black'>
-                    <path d='M1 1l10 6L1 13V1z'/>
-                </svg>
-            </div>
-            <div class='nf-card-title'>{_title}</div>
-            <div class='nf-card-meta'>{rating_html}{year_html}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    if _id:
-        if st.button("▶  Open", key=key):
-            goto_details(_id)
-
-
 def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
     if not cards:
         return
 
     if section_title:
-        st.markdown(f"""
-        <div class='nf-section-header'>
-            <span class='nf-section-title'>{section_title}</span>
-            <span class='nf-section-explore'>Explore All ›</span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='nf-section-header'>"
+            f"<span class='nf-section-title'>{section_title}</span>"
+            f"<span class='nf-section-explore'>Explore All ›</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
 
-    # inject CSS var for column count
-    st.markdown(f"<style>.nf-grid{{--cols:{cols}}}</style>", unsafe_allow_html=True)
+    rows = (len(cards) + cols - 1) // cols
+    idx  = 0
+    for r in range(rows):
+        colset = st.columns(cols, gap="small")
+        for c in range(cols):
+            if idx >= len(cards):
+                break
+            m = cards[idx]; idx += 1
+            _id     = m.get("tmdb_id")
+            _title  = m.get("title", "Unknown")
+            _poster = m.get("poster_url")
+            _year   = (m.get("release_date") or "")[:4]
+            _rating = m.get("vote_average")
 
-    # Build full grid HTML
-    grid_items = ""
-    btn_keys   = []
-    for i, m in enumerate(cards):
-        _id     = m.get("tmdb_id")
-        _title  = m.get("title", "Unknown")
-        _poster = m.get("poster_url")
-        _year   = (m.get("release_date") or "")[:4]
-        _rating = m.get("vote_average")
+            with colset[c]:
+                # ── Poster image ──
+                if valid_url(_poster):
+                    st.markdown(
+                        f"<div class='nf-card'>"
+                        f"<img src='{_poster}' loading='lazy' "
+                        f"style='width:100%;display:block;aspect-ratio:2/3;object-fit:cover;border-radius:4px'>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown(
+                        "<div style='aspect-ratio:2/3;background:#1a1a1a;border-radius:4px;"
+                        "display:flex;align-items:center;justify-content:center;"
+                        "font-size:2rem;color:#333'>🎬</div>",
+                        unsafe_allow_html=True,
+                    )
 
-        rating_html = f'<span class="nf-card-rating">▶ {_rating:.1f}</span>' if _rating else ""
-        year_html   = f'<span>{_year}</span>' if _year else ""
+                # ── Title + meta ──
+                rating_str = f"★{_rating:.1f}  " if _rating else ""
+                st.markdown(
+                    f"<div style='font-size:.72rem;font-weight:600;color:#e5e5e5;"
+                    f"overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                    f"margin:.35rem 0 .1rem;font-family:Inter,sans-serif'>{_title}</div>"
+                    f"<div style='font-size:.63rem;color:#46d369;font-family:Inter,sans-serif'>"
+                    f"{rating_str}<span style='color:#888'>{_year}</span></div>",
+                    unsafe_allow_html=True,
+                )
 
-        if valid_url(_poster):
-            img_html = f"<img src='{_poster}' alt='{_title}' loading='lazy'>"
-        else:
-            img_html = "<div class='nf-card-placeholder'>🎬</div>"
-
-        grid_items += f"""
-        <div class='nf-card'>
-            {img_html}
-            <div class='nf-card-overlay'>
-                <div class='nf-card-play'>
-                    <svg width='12' height='14' viewBox='0 0 12 14' fill='black'>
-                        <path d='M1 1l10 6L1 13V1z'/>
-                    </svg>
-                </div>
-                <div class='nf-card-title'>{_title}</div>
-                <div class='nf-card-meta'>{rating_html}{year_html}</div>
-            </div>
-        </div>
-        """
-        btn_keys.append((_id, _title, i))
-
-    st.markdown(f"<div class='nf-grid'>{grid_items}</div>", unsafe_allow_html=True)
-
-    # Invisible buttons in columns for click handling
-    button_cols = st.columns(cols)
-    for idx, (tid, title, i) in enumerate(btn_keys):
-        with button_cols[idx % cols]:
-            if tid and st.button("▶", key=f"{key_prefix}_{i}_{tid}",
-                                  help=title, use_container_width=True):
-                goto_details(tid)
+                # ── Open button ──
+                if _id:
+                    if st.button("▶ Open", key=f"{key_prefix}_{r}_{c}_{idx}",
+                                  use_container_width=True):
+                        goto_details(_id)
 
 
 # ─────────────────────────────────────────────
