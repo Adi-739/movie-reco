@@ -340,9 +340,17 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
             _year    = (m.get("release_date") or "")[:4]
 
             with colset[c]:
-                if _poster:
-                    st.image(_poster, use_container_width=True)
-                else:
+                _valid = (
+                    isinstance(_poster, str)
+                    and _poster.startswith("http")
+                    and len(_poster) > 10
+                )
+                if _valid:
+                    try:
+                        st.image(_poster, use_container_width=True)
+                    except Exception:
+                        _valid = False
+                if not _valid:
                     st.markdown(
                         "<div style='aspect-ratio:2/3;background:#1a1714;"
                         "border-radius:3px;display:flex;align-items:center;"
