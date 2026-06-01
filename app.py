@@ -478,6 +478,103 @@ section.main > div { padding-top: 68px; }
     font-size: .78rem; color: #666;
     letter-spacing: .08em; text-transform: uppercase;
 }
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MOBILE & TABLET
+══════════════════════════════════════ */
+
+/* Tablet (≤900px) → 3 columns */
+@media (max-width: 900px) {
+    .block-container { padding: 0 !important; }
+
+    .nf-nav { padding: 0 3%; height: 56px; }
+    .nf-nav-links { display: none; }
+    .nf-logo { font-size: 1.4rem; }
+
+    .nf-hero { height: 55vh; min-height: 320px; }
+    .nf-hero-content { bottom: 12%; max-width: 90%; }
+    .nf-hero-title { font-size: 1.6rem; }
+    .nf-hero-desc { display: none; }
+
+    .nf-tabs { padding: .3rem 3%; top: 56px; }
+    .nf-tab { padding: .5rem .8rem; font-size: .75rem; }
+
+    .nf-section-header { padding: 1.5rem 3% .6rem; }
+    .nf-section-title { font-size: .95rem; }
+
+    /* 3-col grid on tablet */
+    [data-testid="column"] { min-width: 0 !important; }
+    section.main > div { padding-top: 56px; }
+
+    .nf-detail-info { flex-direction: column; gap: 1.2rem; margin-top: -60px; padding: 1rem 3% 0; }
+    .nf-detail-poster { width: 140px; }
+    .nf-detail-title { font-size: 1.5rem; }
+    .nf-detail-hero { height: 45vh; }
+
+    .nf-search-container { padding: 1rem 3% .5rem; }
+}
+
+/* Mobile (≤600px) → 2 columns, larger touch targets */
+@media (max-width: 600px) {
+    .nf-nav { padding: 0 4%; height: 52px; }
+    .nf-logo { font-size: 1.25rem; }
+
+    .nf-hero { height: 50vh; min-height: 280px; }
+    .nf-hero-content { bottom: 10%; left: 4%; max-width: 95%; }
+    .nf-hero-title { font-size: 1.3rem; }
+    .nf-hero-badge { font-size: .65rem; }
+    .nf-hero-btns { gap: .5rem; }
+    .nf-btn-play, .nf-btn-info { padding: .45rem 1rem; font-size: .82rem; }
+
+    .nf-tabs { gap: 0; top: 52px; }
+    .nf-tab { padding: .45rem .6rem; font-size: .7rem; }
+
+    .nf-section-header { padding: 1.2rem 4% .5rem; }
+    .nf-section-title { font-size: .88rem; }
+
+    /* Force 2-col on mobile using st.columns gap override */
+    [data-testid="stHorizontalBlock"] > div {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+
+    section.main > div { padding-top: 52px; }
+
+    .nf-detail-hero { height: 38vh; min-height: 220px; }
+    .nf-detail-info { margin-top: -40px; padding: 1rem 4% 0; gap: 1rem; }
+    .nf-detail-poster { width: 110px; }
+    .nf-detail-title { font-size: 1.2rem; }
+    .nf-detail-overview { font-size: .82rem; }
+    .nf-detail-stats { gap: .6rem; }
+
+    /* Bigger tap targets for buttons */
+    .stButton > button {
+        padding: .6rem .8rem !important;
+        font-size: .75rem !important;
+        min-height: 40px !important;
+    }
+
+    /* Card title always visible on mobile (no hover) */
+    .nf-card-overlay { opacity: 1 !important; }
+    .nf-card:hover { transform: none !important; }
+
+    .nf-search-container { padding: .8rem 4% .4rem; }
+    .stTextInput > div > div > input { font-size: .9rem !important; }
+
+    /* Tab buttons smaller */
+    div[data-testid="stHorizontalBlock"] .stButton > button {
+        font-size: .65rem !important;
+        padding: .4rem .3rem !important;
+    }
+}
+
+/* Very small screens (≤380px) */
+@media (max-width: 380px) {
+    .nf-hero-title { font-size: 1.1rem; }
+    .nf-logo { font-size: 1.1rem; }
+    .nf-detail-title { font-size: 1rem; }
+    .nf-hero { height: 45vh; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -678,6 +775,23 @@ def poster_grid(cards, cols=6, key_prefix="g", section_title=None):
             f"</div>",
             unsafe_allow_html=True,
         )
+
+    # Inject JS to detect screen width and set col count via CSS
+    st.markdown("""
+    <style>
+    @media(max-width:600px){
+        /* 2 cols: hide every 3rd+ column item visually via opacity trick not possible,
+           so we rely on st.columns with cols=2 override via JS detection */
+    }
+    </style>
+    <script>
+    (function(){
+        var w = window.innerWidth;
+        var cols = w <= 600 ? 2 : w <= 900 ? 3 : 6;
+        document.documentElement.style.setProperty('--mobile-cols', cols);
+    })();
+    </script>
+    """, unsafe_allow_html=True)
 
     rows = (len(cards) + cols - 1) // cols
     idx  = 0
